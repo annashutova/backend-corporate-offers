@@ -1,0 +1,30 @@
+# Папки сборки
+bin/
+obj/
+out/
+
+# Конфигурационные файлы
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Кэш и логи
+*.log
+*.cache
+*.vs/
+
+# Артефакты сборки
+*.dll
+*.exe
+*.pdb
+*.db
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.csproj.user
+
+# Настройки для OS
+.DS_Store
+Thumbs.db
