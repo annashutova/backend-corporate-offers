@@ -1,3 +1,4 @@
+using CorporateOffers.Data;
 using Microsoft.EntityFrameworkCore;
 
 
