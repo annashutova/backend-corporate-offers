@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CorporateOffers.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/users")]
 public class UsersController: ControllerBase
 {
     private AppDbContext _dbContext;

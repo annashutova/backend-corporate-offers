@@ -5,10 +5,13 @@ namespace CorporateOffers.Data;
 
 public class AppDbContext: DbContext
 {
+    public required DbSet<User> Users {get; set;}
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
-        // Database.EnsureCreated();
+        Database.EnsureCreated();
     }
-    public required DbSet<User> Users {get; set;}
-
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+    }
 }

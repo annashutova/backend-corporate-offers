@@ -1,3 +1,5 @@
+using CorporateOffers.Utils;
+
 namespace CorporateOffers.Entities;
 
 public class User
@@ -19,7 +21,7 @@ public class User
     }
 
     public bool IsPasswordValid(string password) {
-        // TODO
-        return true;
+        byte[] hashedPassword = Hash.HashPassword(password);
+        return Password.SequenceEqual(hashedPassword);
     } 
 }
