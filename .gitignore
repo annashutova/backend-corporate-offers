@@ -8,6 +8,8 @@ out/
 *.suo
 *.userosscache
 *.sln.docstates
+*.sln
+.env
 
 # Кэш и логи
 *.log

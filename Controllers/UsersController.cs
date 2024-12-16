@@ -1,5 +1,6 @@
 using CorporateOffers.Data;
 using CorporateOffers.Models;
+using CorporateOffers.Services.AuthService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +11,12 @@ namespace CorporateOffers.Controllers;
 public class UsersController: ControllerBase
 {
     private AppDbContext _dbContext;
+    private JwtProvider _jwtProvider;
 
-    public UsersController(AppDbContext dbContext)
+    public UsersController(AppDbContext dbContext, JwtProvider jwtProvider)
     {
         _dbContext = dbContext;
+        _jwtProvider = jwtProvider;
     }
 
     [HttpPost("login")]
@@ -31,6 +34,7 @@ public class UsersController: ControllerBase
             return Unauthorized();
         }
 
-        return Ok(new LoginResult("qwerty"));
+        var token = _jwtProvider.GenerateToken(user);
+        return Ok(new LoginResult(token));
     }
 }
