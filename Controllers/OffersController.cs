@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CorporateOffers.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/offers")]
 public class OffersController: ControllerBase
 {
     private AppDbContext _dbContext;
@@ -80,9 +80,11 @@ public class OffersController: ControllerBase
             Offer_type = offerDto.Offer_type,
             Discount_size = offerDto.Discount_size,
             Status = offerDto.Status,
-            Category = offerDto.Category,
+            CategoryId = offerDto.CategoryId,
+            Link = offerDto.Link,
+            Image_path = offerDto.Image_path
         };
-        // заполнить city_to_offer
+        // TODO заполнить city_to_offer
 
         _dbContext.Offers.Add(newOffer);
         await _dbContext.SaveChangesAsync(cancellationToken);
