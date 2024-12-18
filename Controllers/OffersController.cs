@@ -88,16 +88,16 @@ public class OffersController: ControllerBase
         {
             Name = offerDto.Name,
             Annotation = offerDto.Annotation,
-            Company_url = offerDto.Company_url,
+            CompanyUrl = offerDto.CompanyUrl,
             Description = offerDto.Description,
-            Start_date = offerDto.Start_date,
-            End_date = offerDto.End_date,
-            Offer_type = offerDto.Offer_type,
-            Discount_size = offerDto.Discount_size,
+            StartDate = offerDto.StartDate,
+            EndDate = offerDto.EndDate,
+            OfferType = offerDto.OfferType,
+            DiscountSize = offerDto.DiscountSize,
             Status = offerDto.Status,
             CategoryId = offerDto.CategoryId,
             Link = offerDto.Link,
-            Image_path = offerDto.Image_path
+            ImagePath = offerDto.ImagePath
         };
         // TODO заполнить city_to_offer
 

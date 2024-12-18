@@ -1,5 +1,5 @@
 namespace CorporateOffers.Entities;
 
-public enum Offer_type{
+public enum OfferType{
     Benefit, Discount
 }
