@@ -1,6 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using CorporateOffers.Data;
 using CorporateOffers.Services.AuthService;
+using CorporateOffers.Services.BackgroundTasks;
 using DotEnv.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 new EnvLoader().Load();
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddScoped<JwtService>();
+
 // Add services to the container.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -24,10 +29,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("secretkeysecretkeysecretkeysecretkey"))
+                Encoding.UTF8.GetBytes(builder.Configuration["JWT_SECRET_KEY"]))
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var jwtService = context.HttpContext.RequestServices.GetRequiredService<JwtService>();
+                var token = context.SecurityToken;
+
+                var tokenData = await jwtService.IsTokenBlacklistedAsync(token.UnsafeToString());
+                if (tokenData) context.Fail("Token is blacklisted.");
+            }
         };
     });
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminPolicy", policy =>
+    {
+        policy.RequireClaim(ClaimTypes.Role, "Admin");
+    });
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -65,9 +87,9 @@ builder.Services.AddSwaggerGen(options =>
 
 // Подключение к базе данных PostgreSQL
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration["POSTGRESQL_CONNECTION_STRING"]));
 
-builder.Services.AddScoped<JwtProvider>();
+builder.Services.AddHostedService<BlacklistTokenCleanupService>();
 
 var app = builder.Build();
 

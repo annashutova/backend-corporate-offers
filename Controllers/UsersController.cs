@@ -1,6 +1,7 @@
 using CorporateOffers.Data;
 using CorporateOffers.Models;
 using CorporateOffers.Services.AuthService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,16 +12,16 @@ namespace CorporateOffers.Controllers;
 public class UsersController: ControllerBase
 {
     private AppDbContext _dbContext;
-    private JwtProvider _jwtProvider;
+    private JwtService _jwtService;
 
-    public UsersController(AppDbContext dbContext, JwtProvider jwtProvider)
+    public UsersController(AppDbContext dbContext, JwtService jwtService)
     {
         _dbContext = dbContext;
-        _jwtProvider = jwtProvider;
+        _jwtService = jwtService;
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(Login login, CancellationToken cancellationToken) 
+    public async Task<IActionResult> Login(Login login, CancellationToken cancellationToken)
     {
         var user = await _dbContext.Users
             .AsNoTracking()
@@ -34,7 +35,28 @@ public class UsersController: ControllerBase
             return Unauthorized();
         }
 
-        var token = _jwtProvider.GenerateToken(user);
+        var token = _jwtService.GenerateToken(user);
         return Ok(new LoginResult(token));
     }
+    
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var token = HttpContext.Request.Headers.Authorization.ToString().Replace("Bearer ", "");
+
+        await _jwtService.BlacklistTokenAsync(token);
+        
+        return Ok();
+    }
+    
+    [Authorize(Policy = "AdminPolicy")]
+    [HttpGet("get_all")]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var users = await _dbContext.Users.ToListAsync(cancellationToken);
+
+        return Ok(users);
+    }
+    
 }

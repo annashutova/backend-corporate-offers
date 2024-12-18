@@ -18,9 +18,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(p => p.Password).IsRequired().HasMaxLength(32);
 
-        byte[] hashedPassword = Hash.HashPassword("123");
         builder.HasData(new User[] {
-            new (1, "email@gmail.com", "Ivan", "Ivanov", Role.Admin, hashedPassword),
+            new (1, "email@gmail.com", "Ivan", "Ivanov", Role.Admin, Hash.HashPassword("123")),
+            new (2, "email", "Marina", "Ivanova", Role.Employee, Hash.HashPassword("123")),
         });
     }
 }
