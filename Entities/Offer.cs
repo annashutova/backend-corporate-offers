@@ -32,5 +32,6 @@ public class Offer
         CategoryId = categoryId;
         Link = link;
         Image_path = image_path;
+        // cities
     }
 }

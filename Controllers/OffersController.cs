@@ -51,6 +51,21 @@ public class OffersController: ControllerBase
         return Ok(offers);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetOfferById(int id, CancellationToken cancellationToken)
+    {
+        // Поиск предложения по id
+        var offer = await _dbContext.Offers.FindAsync(new object[] { id }, cancellationToken);
+
+        // Проверка, существует ли предложение
+        if (offer == null)
+        {
+            return NotFound($"Offer with ID {id} not found.");
+        }
+
+        return Ok(offer);
+    }
+
     [HttpPost("")]
     public async Task<IActionResult> CreateOffer(
         [FromBody] OfferDto offerDto,
@@ -62,7 +77,7 @@ public class OffersController: ControllerBase
             return BadRequest("Offer data is required.");
         }
 
-        if (string.IsNullOrEmpty(offerDto.Status) ||  // нужна ли тут эта проверка?
+        if (string.IsNullOrEmpty(offerDto.Status) ||
             (offerDto.Status != "active" && offerDto.Status != "draft" && offerDto.Status != "archived"))
         {
             return BadRequest("Invalid status parameter. Allowed values are: active, draft, archived.");
@@ -91,5 +106,4 @@ public class OffersController: ControllerBase
 
         return CreatedAtAction(nameof(GetOffers), new { id = newOffer.Id }, newOffer);
     }
-
 }
