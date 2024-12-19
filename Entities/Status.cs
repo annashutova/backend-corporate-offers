@@ -1,5 +1,7 @@
 namespace CorporateOffers.Entities;
 
 public enum Status{
-    Active, Draft, Archived
+    0, // active
+    1, // draft
+    2  // archived
 }
