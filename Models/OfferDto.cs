@@ -10,7 +10,7 @@ public record OfferDto (
     [Required] DateTime EndDate, 
     [Required] OfferType OfferType, 
     [Required] int DiscountSize, 
-    [Required] Status Status,
+    [Required] string Status,
     [Required] string Category, 
     [Required] string Link, 
     [Required] string ImagePath, 
