@@ -15,7 +15,7 @@ public class BlacklistTokenCleanupService : IHostedService, IDisposable
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _timer = new Timer(ClearTokenBlacklist, null, TimeSpan.Zero, TimeSpan.FromDays(7)); // once a week
+        _timer = new Timer(ClearTokenBlacklist, null, TimeSpan.Zero, TimeSpan.FromDays(1)); // checks every day
         return Task.CompletedTask;
     }
 
