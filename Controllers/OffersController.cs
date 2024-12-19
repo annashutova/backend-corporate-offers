@@ -25,7 +25,7 @@ public class OffersController: ControllerBase
         CancellationToken cancellationToken)
     {
         // Проверка валидности статуса
-        if (status != 0 && status != 1 && status != 2)
+        if (status != "Active" && status != "Draft" && status != "Archived")
         {
             return BadRequest("Invalid status parameter.");
         }
@@ -82,7 +82,7 @@ public class OffersController: ControllerBase
         }
 
         if (string.IsNullOrEmpty(offerDto.Status) ||
-            (offerDto.Status != 0 && offerDto.Status != 1))
+            (offerDto.Status != "Active" && offerDto.Status != "Draft"))
         {
             return BadRequest("Invalid status parameter.");
         }
@@ -102,9 +102,8 @@ public class OffersController: ControllerBase
         }
 
         // получение ID категории по ее названию
-        var categoryId = await _dbContext.Categories
+        var category = await _dbContext.Categories
             .Where(c => c.Name == offerDto.Category)
-            .Select(c => c.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
         // Создание нового предложения
@@ -119,12 +118,10 @@ public class OffersController: ControllerBase
             OfferType = offerDto.OfferType,
             DiscountSize = offerDto.DiscountSize,
             Status = offerDto.Status,
-            CategoryId = categoryId,
+            Category = category,
             Link = offerDto.Link,
             ImagePath = offerDto.ImagePath
         };
-
-        _dbContext.Offers.Add(newOffer);
 
         // добавление городов к предложению
         foreach (var cityName in offerDto.Cities)
@@ -135,6 +132,8 @@ public class OffersController: ControllerBase
 
             newOffer.Cities.Add(city);
         }
+
+        _dbContext.Offers.Add(newOffer);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
