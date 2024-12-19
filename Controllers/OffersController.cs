@@ -16,6 +16,7 @@ public class OffersController: ControllerBase
         _dbContext = dbContext;
     }
 
+    [Authorize]
     [HttpGet("")]
     public async Task<IActionResult> GetOffers(
         [FromQuery] string status,
@@ -24,10 +25,11 @@ public class OffersController: ControllerBase
         CancellationToken cancellationToken)
     {
         // Проверка валидности статуса
-        if (status != "active" && status != "draft" && status != "archived")
+        if (status != "Active" && status != "Draft" && status != "Archived")
         {
-            return BadRequest("Invalid status parameter. Allowed values are: active, draft, archived.");
+            return BadRequest("Invalid status parameter.");
         }
+        // TODO доступ к archive и draft только у админов
 
         var offersQuery = _dbContext.Offers.AsQueryable();
 
@@ -37,13 +39,13 @@ public class OffersController: ControllerBase
         // Фильтрация по городу, если он задан
         if (!string.IsNullOrEmpty(city))
         {
-            offersQuery = offersQuery.Where(o => o.City == city);
+            offersQuery = offersQuery.Where(o => o.Cities.Any(c => c.Name == city));
         }
 
         // Фильтрация по категории, если она задана
         if (!string.IsNullOrEmpty(category))
         {
-            offersQuery = offersQuery.Where(o => o.Category == category);
+            offersQuery = offersQuery.Where(o => o.Category.Name == category);
         }
 
         var offers = await offersQuery.ToListAsync(cancellationToken);
@@ -51,6 +53,7 @@ public class OffersController: ControllerBase
         return Ok(offers);
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOfferById(int id, CancellationToken cancellationToken)
     {
@@ -66,6 +69,7 @@ public class OffersController: ControllerBase
         return Ok(offer);
     }
 
+    [Authorize(Policy = "AdminPolicy")]
     [HttpPost("")]
     public async Task<IActionResult> CreateOffer(
         [FromBody] OfferDto offerDto,
@@ -78,10 +82,29 @@ public class OffersController: ControllerBase
         }
 
         if (string.IsNullOrEmpty(offerDto.Status) ||
-            (offerDto.Status != "active" && offerDto.Status != "draft" && offerDto.Status != "archived"))
+            (offerDto.Status != "Active" && offerDto.Status != "Draft"))
         {
-            return BadRequest("Invalid status parameter. Allowed values are: active, draft, archived.");
+            return BadRequest("Invalid status parameter.");
         }
+
+        // преобразование дат в тип DateTime
+        DateTime startDate;
+        DateTime endDate;
+
+        if (!DateTime.TryParse(offerDto.StartDate, out startDate))
+        {
+            return BadRequest("Invalid start date format.");
+        }
+
+        if (!DateTime.TryParse(offerDto.EndDate, out endDate))
+        {
+            return BadRequest("Invalid end date format.");
+        }
+
+        // получение ID категории по ее названию
+        var category = await _dbContext.Categories
+            .Where(c => c.Name == offerDto.Category)
+            .FirstOrDefaultAsync(cancellationToken);
 
         // Создание нового предложения
         var newOffer = new Offer
@@ -90,18 +113,28 @@ public class OffersController: ControllerBase
             Annotation = offerDto.Annotation,
             CompanyUrl = offerDto.CompanyUrl,
             Description = offerDto.Description,
-            StartDate = offerDto.StartDate,
-            EndDate = offerDto.EndDate,
+            StartDate = startDate,
+            EndDate = endDate,
             OfferType = offerDto.OfferType,
             DiscountSize = offerDto.DiscountSize,
             Status = offerDto.Status,
-            CategoryId = offerDto.CategoryId,
+            Category = category,
             Link = offerDto.Link,
             ImagePath = offerDto.ImagePath
         };
-        // TODO заполнить city_to_offer
+
+        // добавление городов к предложению
+        foreach (var cityName in offerDto.Cities)
+        {
+            var city = await _dbContext.Cities
+                .Where(c => c.Name == cityName)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            newOffer.Cities.Add(city);
+        }
 
         _dbContext.Offers.Add(newOffer);
+
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return CreatedAtAction(nameof(GetOffers), new { id = newOffer.Id }, newOffer);
