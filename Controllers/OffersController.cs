@@ -1,5 +1,6 @@
 using CorporateOffers.Data;
 using CorporateOffers.Models;
+using CorporateOffers.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +8,7 @@ namespace CorporateOffers.Controllers;
 
 [ApiController]
 [Route("api/v1/offers")]
-public class OffersController: ControllerBase
+public class OffersController : ControllerBase
 {
     private AppDbContext _dbContext;
 
@@ -16,7 +17,7 @@ public class OffersController: ControllerBase
         _dbContext = dbContext;
     }
 
-    [Authorize]
+    // [Authorize]
     [HttpGet("")]
     public async Task<IActionResult> GetOffers(
         [FromQuery] string status,
@@ -34,7 +35,8 @@ public class OffersController: ControllerBase
         var offersQuery = _dbContext.Offers.AsQueryable();
 
         // Фильтрация по статусу
-        offersQuery = offersQuery.Where(o => o.Status == status);
+        Status statusEnum = (Status)Enum.Parse(typeof(Status), status);
+        offersQuery = offersQuery.Where(o => o.Status == statusEnum);
 
         // Фильтрация по городу, если он задан
         if (!string.IsNullOrEmpty(city))
@@ -53,12 +55,12 @@ public class OffersController: ControllerBase
         return Ok(offers);
     }
 
-    [Authorize]
+    // [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOfferById(int id, CancellationToken cancellationToken)
     {
         // Поиск предложения по id
-        var offer = await _dbContext.Offers.FindAsync(new object[] { id }, cancellationToken);
+        var offer = await _dbContext.Offers.FindAsync([id], cancellationToken);
 
         // Проверка, существует ли предложение
         if (offer == null)
@@ -69,7 +71,7 @@ public class OffersController: ControllerBase
         return Ok(offer);
     }
 
-    [Authorize(Policy = "AdminPolicy")]
+    // [Authorize(Policy = "AdminPolicy")]
     [HttpPost("")]
     public async Task<IActionResult> CreateOffer(
         [FromBody] OfferDto offerDto,
@@ -88,23 +90,36 @@ public class OffersController: ControllerBase
         }
 
         // преобразование дат в тип DateTime
-        DateTime startDate;
-        DateTime endDate;
-
-        if (!DateTime.TryParse(offerDto.StartDate, out startDate))
+        if (!DateTime.TryParse(offerDto.StartDate, out DateTime startDate))
         {
             return BadRequest("Invalid start date format.");
         }
 
-        if (!DateTime.TryParse(offerDto.EndDate, out endDate))
+        if (!DateTime.TryParse(offerDto.EndDate, out DateTime endDate))
         {
             return BadRequest("Invalid end date format.");
         }
 
         // получение ID категории по ее названию
-        var category = await _dbContext.Categories
+        var categoryId = await _dbContext.Categories
             .Where(c => c.Name == offerDto.Category)
+            .Select(c => c.Id)
             .FirstOrDefaultAsync(cancellationToken);
+        // if (categoryId == null)
+        // {
+        //     // Если категория не найдена, создаем новую
+        //     category = new Category
+        //     {
+        //         Name = offerDto.CategoryName
+        //     };
+        //     _dbContext.Categories.Add(category);
+        // }
+
+        // Преобразование статуса в тип Enum
+        Status statusEnum = (Status)Enum.Parse(typeof(Status), offerDto.Status);
+
+        // Преобразование типа предложения в тип Enum
+        OfferType offerType = (OfferType)Enum.Parse(typeof(OfferType), offerDto.OfferType);
 
         // Создание нового предложения
         var newOffer = new Offer
@@ -115,10 +130,10 @@ public class OffersController: ControllerBase
             Description = offerDto.Description,
             StartDate = startDate,
             EndDate = endDate,
-            OfferType = offerDto.OfferType,
+            OfferType = offerType,
             DiscountSize = offerDto.DiscountSize,
-            Status = offerDto.Status,
-            Category = category,
+            Status = statusEnum,
+            CategoryId = categoryId,
             Link = offerDto.Link,
             ImagePath = offerDto.ImagePath
         };
