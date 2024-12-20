@@ -1,5 +1,7 @@
 using CorporateOffers.Data;
+using CorporateOffers.Entities;
 using CorporateOffers.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,95 +17,18 @@ public class OffersController: ControllerBase
     {
         _dbContext = dbContext;
     }
-
-    [HttpGet("")]
-    public async Task<IActionResult> GetOffers(
-        [FromQuery] string status,
-        [FromQuery] string city,
-        [FromQuery] string category,
-        CancellationToken cancellationToken)
+    
+    [Authorize(Policy = "AdminPolicy")]
+    [HttpPut("archive/{id:int}")]
+    public async Task<IActionResult> ArchiveOffer(int id, CancellationToken cancellationToken)
     {
-        // Проверка валидности статуса
-        if (status != "active" && status != "draft" && status != "archived")
-        {
-            return BadRequest("Invalid status parameter. Allowed values are: active, draft, archived.");
-        }
+        var offer = await _dbContext.Offers.FindAsync(id, cancellationToken);
 
-        var offersQuery = _dbContext.Offers.AsQueryable();
+        if (offer == null) return NotFound(new { message = $"Предложение с id={id} не найдено" });
 
-        // Фильтрация по статусу
-        offersQuery = offersQuery.Where(o => o.Status == status);
+        if (offer.Status == Status.Archived) return NoContent();
 
-        // Фильтрация по городу, если он задан
-        if (!string.IsNullOrEmpty(city))
-        {
-            offersQuery = offersQuery.Where(o => o.City == city);
-        }
-
-        // Фильтрация по категории, если она задана
-        if (!string.IsNullOrEmpty(category))
-        {
-            offersQuery = offersQuery.Where(o => o.Category == category);
-        }
-
-        var offers = await offersQuery.ToListAsync(cancellationToken);
-
-        return Ok(offers);
-    }
-
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetOfferById(int id, CancellationToken cancellationToken)
-    {
-        // Поиск предложения по id
-        var offer = await _dbContext.Offers.FindAsync(new object[] { id }, cancellationToken);
-
-        // Проверка, существует ли предложение
-        if (offer == null)
-        {
-            return NotFound($"Offer with ID {id} not found.");
-        }
-
-        return Ok(offer);
-    }
-
-    [HttpPost("")]
-    public async Task<IActionResult> CreateOffer(
-        [FromBody] OfferDto offerDto,
-        CancellationToken cancellationToken)
-    {
-        // Проверка на валидность входных данных
-        if (offerDto == null)
-        {
-            return BadRequest("Offer data is required.");
-        }
-
-        if (string.IsNullOrEmpty(offerDto.Status) ||
-            (offerDto.Status != "active" && offerDto.Status != "draft" && offerDto.Status != "archived"))
-        {
-            return BadRequest("Invalid status parameter. Allowed values are: active, draft, archived.");
-        }
-
-        // Создание нового предложения
-        var newOffer = new Offer
-        {
-            Name = offerDto.Name,
-            Annotation = offerDto.Annotation,
-            CompanyUrl = offerDto.CompanyUrl,
-            Description = offerDto.Description,
-            StartDate = offerDto.StartDate,
-            EndDate = offerDto.EndDate,
-            OfferType = offerDto.OfferType,
-            DiscountSize = offerDto.DiscountSize,
-            Status = offerDto.Status,
-            CategoryId = offerDto.CategoryId,
-            Link = offerDto.Link,
-            ImagePath = offerDto.ImagePath
-        };
-        // TODO заполнить city_to_offer
-
-        _dbContext.Offers.Add(newOffer);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        return CreatedAtAction(nameof(GetOffers), new { id = newOffer.Id }, newOffer);
+        await offer.ChangeOfferStatus(Status.Archived, _dbContext, cancellationToken);
+        return Ok();
     }
 }

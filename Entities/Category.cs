@@ -6,7 +6,7 @@ public class Category
 {
     public int Id {get; init;}
     public string Name {get; init;}
-    public ICollection<Offer> Offers { get; } = new List<Offer>();
+    public List<Offer> Offers { get; } = [];
 
     public Category(int id, string name) {
         Id = id;
