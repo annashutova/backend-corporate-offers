@@ -28,7 +28,7 @@ public class UsersController: ControllerBase
             .SingleOrDefaultAsync(x => x.Email == login.Email, cancellationToken);
         
         if (user == null) {
-            return NotFound();
+            return Unauthorized();
         }
 
         if (!user.IsPasswordValid(login.Password)) {
