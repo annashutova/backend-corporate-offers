@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using CorporateOffers.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ public class City
 {
     public int Id {get; init;}
     public string Name {get; init;}
+    [JsonIgnore]
     public List<Offer> Offers { get; } = [];
 
     public City(int id, string name) {
