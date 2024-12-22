@@ -1,4 +1,5 @@
-using CorporateOffers.Utils;
+using CorporateOffers.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace CorporateOffers.Entities;
 
@@ -11,5 +12,10 @@ public class City
     public City(int id, string name) {
         Id = id;
         Name = name;
+    }
+
+    public static async Task<City?> GetByName(AppDbContext dbContext, string name, CancellationToken cancellationToken)
+    {
+        return await dbContext.Cities.FirstOrDefaultAsync(c => c.Name == name, cancellationToken);
     }
 }

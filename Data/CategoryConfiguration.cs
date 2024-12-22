@@ -17,7 +17,9 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 
         builder.HasData(new Category[] {
             new (1, "Спорт"),
-            new (2, "Отдых")
+            new (2, "Отдых"),
+            new (3, "Дети"),
+            new (4, "Отели")
         });
     }
 }

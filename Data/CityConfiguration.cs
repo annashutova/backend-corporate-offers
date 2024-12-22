@@ -17,6 +17,8 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
         builder.HasData(new City[] {
             new (1, "Москва"),
             new (2, "Санкт-Петербург"),
+            new (3, "Иркутск"),
+            new (4, "Новосибирск"),
         });
     }
 }
