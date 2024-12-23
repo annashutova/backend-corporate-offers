@@ -16,6 +16,17 @@ var builder = WebApplication.CreateBuilder(args);
 new EnvLoader().Load();
 builder.Configuration.AddEnvironmentVariables();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowOrigin",
+        policyConfig =>
+        {
+            policyConfig.WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddScoped<JwtService>();
 
 // Add services to the container.
@@ -103,6 +114,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowOrigin");
 
 app.UseHttpsRedirection();
 

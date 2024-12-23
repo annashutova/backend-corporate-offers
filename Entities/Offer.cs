@@ -18,8 +18,11 @@ public class Offer
     public int? CategoryId { get; private set; }
     public Category? Category { get; private set; }
     public List<string?> Links { get; private set; } = [];
+    public string? ImagePath { get; private set; }
     public List<City?> Cities { get; private set; } = [];
-    public Offer(int id, string? name, string? annotation, string? companyUrl, string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType, Status status, int? categoryId, List<string?> links, int? discountSize = null) {
+    public Offer(int id, string? name, string? annotation, string? companyUrl,
+        string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
+        Status status, int? categoryId, List<string?> links, string? imagePath, int? discountSize = null) {
         Id = id;
         Name = name;
         Annotation = annotation;
@@ -32,6 +35,7 @@ public class Offer
         Status = status;
         CategoryId = categoryId;
         Links = links;
+        ImagePath = imagePath;
     }
 
     public async Task ChangeOfferStatus(Status status, AppDbContext dbContext, CancellationToken cancellationToken)
@@ -53,6 +57,7 @@ public class Offer
         DiscountSize = offerData.DiscountSize;
         Category = offerData.Category;
         Links = offerData.Links ?? [];
+        ImagePath = offerData.ImagePath;
         
         Cities.Clear();
         Cities.AddRange(offerData.Cities ?? []);

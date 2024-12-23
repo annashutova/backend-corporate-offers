@@ -16,4 +16,5 @@ public record EditOfferData(
     int? DiscountSize,
     Category? Category,
     List<string?> Links,
+    string? ImagePath,
     List<City?> Cities);

@@ -14,6 +14,7 @@ public record EditOfferRequest(
     int? DiscountSize,
     string? Category,
     List<string?> Links,
+    string? ImagePath,
     List<string?> Cities)
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]

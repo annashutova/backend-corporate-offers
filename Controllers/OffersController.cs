@@ -80,6 +80,8 @@ public class OffersController: ControllerBase
                 string.IsNullOrWhiteSpace(request.Annotation) ||
                 string.IsNullOrWhiteSpace(request.CompanyUrl) ||
                 string.IsNullOrWhiteSpace(request.Description) ||
+                string.IsNullOrWhiteSpace(request.Category) ||
+                string.IsNullOrWhiteSpace(request.ImagePath) ||
                 request.StartDate == null ||
                 request.EndDate == null ||
                 request.Cities.Count == 0 ||
@@ -148,6 +150,7 @@ public class OffersController: ControllerBase
             DiscountSize: request.DiscountSize,
             Category: category,
             Links: request.Links ?? [],
+            ImagePath: request.ImagePath,
             Cities: cities);
 
         await offer.ChangeOfferData(offerData, _dbContext, cancellationToken);
