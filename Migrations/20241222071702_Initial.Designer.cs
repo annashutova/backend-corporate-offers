@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CorporateOffers.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CorporateOffers.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222071702_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,10 +209,6 @@ namespace CorporateOffers.Migrations
                     b.Property<DateTime?>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("ImagePath")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
                     b.PrimitiveCollection<List<string>>("Links")
                         .IsRequired()
                         .HasColumnType("text[]");
@@ -241,12 +240,11 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url",
                             Description = "description",
-                            EndDate = new DateTime(2024, 12, 24, 11, 24, 10, 168, DateTimeKind.Utc).AddTicks(9067),
-                            ImagePath = "",
+                            EndDate = new DateTime(2024, 12, 23, 7, 17, 1, 594, DateTimeKind.Utc).AddTicks(3987),
                             Links = new List<string> { "link1", "link2" },
                             Name = "name",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 23, 11, 24, 10, 168, DateTimeKind.Utc).AddTicks(8722),
+                            StartDate = new DateTime(2024, 12, 22, 7, 17, 1, 594, DateTimeKind.Utc).AddTicks(3615),
                             Status = 0
                         },
                         new
@@ -257,12 +255,11 @@ namespace CorporateOffers.Migrations
                             CompanyUrl = "url2",
                             Description = "description2",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 25, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3646),
-                            ImagePath = "",
+                            EndDate = new DateTime(2024, 12, 24, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1664),
                             Links = new List<string>(),
                             Name = "name2",
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 23, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3645),
+                            StartDate = new DateTime(2024, 12, 22, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1663),
                             Status = 1
                         },
                         new
@@ -272,11 +269,10 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             Description = "description3",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 26, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3661),
-                            ImagePath = "",
+                            EndDate = new DateTime(2024, 12, 25, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1691),
                             Links = new List<string> { "link3" },
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 23, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3661),
+                            StartDate = new DateTime(2024, 12, 22, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1691),
                             Status = 1
                         },
                         new
@@ -286,12 +282,11 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url4",
                             Description = "description4",
-                            EndDate = new DateTime(2024, 12, 27, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3670),
-                            ImagePath = "",
+                            EndDate = new DateTime(2024, 12, 26, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1707),
                             Links = new List<string> { "link" },
                             Name = "name4",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 24, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3669),
+                            StartDate = new DateTime(2024, 12, 23, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1707),
                             Status = 2
                         },
                         new
@@ -301,12 +296,11 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             CompanyUrl = "url5",
                             Description = "description5",
-                            EndDate = new DateTime(2024, 12, 28, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3674),
-                            ImagePath = "",
+                            EndDate = new DateTime(2024, 12, 27, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1711),
                             Links = new List<string> { "link" },
                             Name = "name5",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 25, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3673),
+                            StartDate = new DateTime(2024, 12, 24, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1710),
                             Status = 0
                         });
                 });

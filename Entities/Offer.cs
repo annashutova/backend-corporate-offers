@@ -1,27 +1,29 @@
-using CorporateOffers.Utils;
+using CorporateOffers.Data;
+using CorporateOffers.Models;
 
 namespace CorporateOffers.Entities;
 
 public class Offer
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id {get; init;}
-    public string Name {get; set;}
-    public string Annotation {get; set;}
-    public string CompanyUrl {get; set;}
-    public string Description {get; set;}
-    public DateTime StartDate {get; set;}
-    public DateTime EndDate {get; set;}
-    public OfferType OfferType {get; set;}
-    public int DiscountSize {get; set;}
-    public Status Status {get; set;}
-    public int CategoryId { get; set; }
-    public Category Category { get; set; } = null!;
-    public string Link {get; set;}
-    public string ImagePath {get; set;}
-    public List<CityOffer> CityOffers { get; } = [];
-    public List<City> Cities { get; } = [];
-    public Offer(int id, string name, string annotation, string companyUrl, string description, DateTime startDate, DateTime endDate, OfferType offerType, int discountSize, Status status, int categoryId, string link, string imagePath) {
-        Id = id;
+    public string? Name {get; private set;}
+    public string? Annotation {get; private set;}
+    public string? CompanyUrl {get; private set;}
+    public string? Description {get; private set;}
+    public DateTime? StartDate {get; private set;}
+    public DateTime? EndDate {get; private set;}
+    public OfferType? OfferType {get; private set;}
+    public int? DiscountSize { get; private set; }
+    public Status Status {get; private set;}
+    public int? CategoryId { get; private set; }
+    public Category? Category { get; private set; }
+    public List<string?> Links { get; private set; } = [];
+    public string? ImagePath { get; private set; }
+    public List<City?> Cities { get; private set; } = [];
+    public Offer(string? name, string? annotation, string? companyUrl,
+        string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
+        Status status, int? categoryId, List<string?> links, string? imagePath, int? discountSize = null) {
         Name = name;
         Annotation = annotation;
         CompanyUrl = companyUrl;
@@ -32,8 +34,34 @@ public class Offer
         DiscountSize = discountSize;
         Status = status;
         CategoryId = categoryId;
-        Link = link;
+        Links = links;
         ImagePath = imagePath;
-        // TODO cities
+    }
+
+    public async Task ChangeOfferStatus(Status status, AppDbContext dbContext, CancellationToken cancellationToken)
+    {
+        Status = status;
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ChangeOfferData(EditOfferData offerData, AppDbContext dbContext, CancellationToken cancellationToken)
+    {
+        Name = offerData.Name;
+        Annotation = offerData.Annotation;
+        CompanyUrl = offerData.CompanyUrl;
+        Description = offerData.Description;
+        Status = offerData.Status;
+        StartDate = offerData.StartDate;
+        EndDate = offerData.EndDate;
+        OfferType = offerData.OfferType;
+        DiscountSize = offerData.DiscountSize;
+        Category = offerData.Category;
+        Links = offerData.Links ?? [];
+        ImagePath = offerData.ImagePath;
+        
+        Cities.Clear();
+        Cities.AddRange(offerData.Cities ?? []);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
