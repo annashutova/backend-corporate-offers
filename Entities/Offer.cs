@@ -1,5 +1,7 @@
 using CorporateOffers.Data;
 using CorporateOffers.Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CorporateOffers.Entities;
 
@@ -23,7 +25,7 @@ public class Offer
     public List<City?> Cities { get; private set; } = [];
     public Offer(string? name, string? annotation, string? companyUrl,
         string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
-        Status status, int? categoryId, List<string?> links, string? imagePath, int? discountSize = null) {
+        Status status, List<string?> links, string? imagePath, int? categoryId, int? discountSize = null) {
         Name = name;
         Annotation = annotation;
         CompanyUrl = companyUrl;

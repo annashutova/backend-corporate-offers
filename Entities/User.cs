@@ -1,4 +1,6 @@
 using CorporateOffers.Utils;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CorporateOffers.Entities;
 
