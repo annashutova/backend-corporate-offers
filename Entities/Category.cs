@@ -1,7 +1,6 @@
 using System.Text.Json.Serialization;
 using CorporateOffers.Data;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CorporateOffers.Entities;

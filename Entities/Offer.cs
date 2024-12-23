@@ -1,6 +1,5 @@
 using CorporateOffers.Data;
 using CorporateOffers.Models;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CorporateOffers.Entities;
