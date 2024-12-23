@@ -1,15 +1,16 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using CorporateOffers.Utils;
 
 namespace CorporateOffers.Entities;
 
 public class Category
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id {get; init;}
     public string Name {get; init;}
-    public ICollection<Offer> Offers { get; } = new List<Offer>();
+    public List<Offer> Offers { get; } = [];
 
-    public Category(int id, string name) {
-        Id = id;
+    public Category(string name) {
         Name = name;
     }
 }

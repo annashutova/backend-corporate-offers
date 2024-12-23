@@ -13,6 +13,6 @@ public record OfferDto (
     [Required] string Status,
     [Required] string Category, 
     [Required] string Link, 
-    [Required] string ImagePath, 
+    [Required] string ImagePath,
     [Required] List<string> Cities
 );
