@@ -29,7 +29,7 @@ public class OffersController: ControllerBase
         // Проверка валидности статуса
         if (status != "Active" && status != "Draft" && status != "Archived")
         {
-            return BadRequest("Invalid status parameter.");
+            return BadRequest("Неверный статус.");
         }
         // TODO доступ к archive и draft только у админов
 
@@ -70,7 +70,7 @@ public class OffersController: ControllerBase
         // Проверка, существует ли предложение
         if (offer == null)
         {
-            return NotFound($"Offer with ID {id} not found.");
+            return NotFound($"Предложение с id={id} не найдено.");
         }
 
         return Ok(offer);
@@ -79,90 +79,115 @@ public class OffersController: ControllerBase
     [Authorize(Policy = "AdminPolicy")]
     [HttpPost("")]
     public async Task<IActionResult> CreateOffer(
-        [FromBody] OfferDto offerDto,
+        [FromBody] CreateOfferData request,
         CancellationToken cancellationToken)
     {
-        // Проверка на наличие входных данных
-        if (offerDto == null)
+        if (request.StartDate > request.EndDate)
         {
-            return BadRequest("Offer data is required.");
+            return BadRequest(new { message = "Дата начала предложения не может быть меньше даты окончания" });
         }
 
-        if (string.IsNullOrEmpty(offerDto.Status) ||
-            (offerDto.Status != "Active" && offerDto.Status != "Draft"))
+        // Проверяем статус предложения
+        if (request.Status == Status.Archived)
         {
-            return BadRequest("Invalid status parameter.");
+            return BadRequest(new { message = "Невозможно создать архивное предложение." });
         }
 
-        // преобразование дат в тип DateTime
-        if (!DateTime.TryParse(offerDto.StartDate, out DateTime startDate))
-        {
-            return BadRequest("Invalid start date format.");
-        }
+        // Проверяем и преобразуем в Enum тип предложения
+        var offerTypeNotPresent = string.IsNullOrWhiteSpace(request.OfferType);
+        var offerTypeIsValid = Enum.TryParse<OfferType>(request.OfferType, out var offerType);
 
-        if (!DateTime.TryParse(offerDto.EndDate, out DateTime endDate))
+        // Проверяем, если статус - Active
+        if (request.Status == Status.Active)
         {
-            return BadRequest("Invalid end date format.");
-        }
-
-        int? categoryId = null;
-        if (offerDto.Category != null) {
-            // получение категории по ее названию
-            var category = await _dbContext.Categories
-                .Where(c => c.Name == offerDto.Category)
-                .FirstOrDefaultAsync(cancellationToken);
-            if (category == null)
+            // Проверяем тип предложения
+            if (offerTypeNotPresent)
             {
-                // Если категория не найдена, создаем новую
-                category = new Category(offerDto.Category);
-                _dbContext.Categories.Add(category);
+                return BadRequest(new { message = "Все поля обязательны для заполнения" });
             }
-            categoryId = category.Id;
+
+            if (!offerTypeIsValid)
+            {
+                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+            }
+            
+            if (string.IsNullOrWhiteSpace(request.Name) ||
+                string.IsNullOrWhiteSpace(request.Annotation) ||
+                string.IsNullOrWhiteSpace(request.CompanyUrl) ||
+                string.IsNullOrWhiteSpace(request.Description) ||
+                string.IsNullOrWhiteSpace(request.Category) ||
+                string.IsNullOrWhiteSpace(request.ImagePath) ||
+                request.StartDate == null ||
+                request.EndDate == null ||
+                request.Cities.Count == 0 ||
+                (request.DiscountSize == null && offerType == OfferType.Discount) ||
+                request.DiscountSize < 0 || request.DiscountSize > 100)
+            {
+                return BadRequest(new { message = "Все поля обязательны для заполнения, и DiscountSize должен быть от 0 до 100 для данного типа предложения" });
+            }
         }
 
-        // Преобразование статуса в тип Enum
-        Status statusEnum = (Status)Enum.Parse(typeof(Status), offerDto.Status);
-
-        // Преобразование типа предложения в тип Enum
-        OfferType? offerType = null;
-        if (offerDto.OfferType != null) {
-            offerType = (OfferType)Enum.Parse(typeof(OfferType), offerDto.OfferType);
+        // Проверяем OfferType и DiscountSize
+        if (!offerTypeIsValid)
+        {
+            return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+        }
+        
+        if (offerType == OfferType.Discount && request.DiscountSize is < 0 or > 100)
+        {
+            return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
         }
 
-        // Создание нового предложения
+        // Проверяем, существует ли категория в базе
+        if (request.Category != null)
+        {
+            var categoryExists = await _dbContext.Categories
+                .AnyAsync(c => c.Name == request.Category, cancellationToken);
+            if (!categoryExists)
+            {
+                return BadRequest(new { message = $"Категория {request.Category} не существует" });
+            }
+        }
+
+        // Получаем ID категории
+        var category = request.Category != null ? await Category.GetByName(_dbContext, request.Category, cancellationToken) : null;
+
+        // Создаем нового предложения
         var newOffer = new Offer
         (
-            offerDto.Name,
-            offerDto.Annotation,
-            offerDto.CompanyUrl,
-            offerDto.Description,
-            startDate,
-            endDate,
-            offerType,
-            statusEnum,
-            offerDto.Links,
-            offerDto.ImagePath,
-            categoryId,
-            offerDto.DiscountSize
+            name: request.Name,
+            annotation: request.Annotation,
+            companyUrl: request.CompanyUrl,
+            description: request.Description,
+            startDate: request.StartDate?.ToUniversalTime(),
+            endDate: request.EndDate?.ToUniversalTime(),
+            offerType: offerType,
+            status: request.Status,
+            categoryId: category.Id,
+            links: request.Links,
+            imagePath: request.ImagePath,
+            discountSize: request.DiscountSize
         );
 
-        if (offerDto.Cities != null) {
-            // добавление городов к предложению
-            foreach (var cityName in offerDto.Cities)
+        // Проверяем, существуют ли города в базе
+        if (request.Cities.Count > 0)
+        {
+            var cityExists = await _dbContext.Cities
+                .Where(city => request.Cities.Contains(city.Name))
+                .AnyAsync(cancellationToken);
+            if (!cityExists)
             {
-                var city = await _dbContext.Cities
-                    .Where(c => c.Name == cityName)
-                    .FirstOrDefaultAsync(cancellationToken);
+                return BadRequest(new { message = "Один или несколько городов не существуют" });
+            }
+        }
 
-                // Если города не существует, создаем новый
-                if (city == null)
-                {
-                    city = new City(cityName);
-                    _dbContext.Cities.Add(city);
-                    await _dbContext.SaveChangesAsync(cancellationToken);
-                }
-
-                newOffer.Cities.Add(city);
+        var cities = new List<City?>();
+        foreach (var cityName in request.Cities)
+        {
+            var city = await City.GetByName(_dbContext, cityName, cancellationToken);
+            if (city != null)
+            {
+                cities.Add(city);
             }
         }
 

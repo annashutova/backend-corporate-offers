@@ -1,12 +1,9 @@
 using CorporateOffers.Utils;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CorporateOffers.Entities;
 
 public class User
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id {get; init;}
     public string Email {get; init;}
     public string FirstName {get; init;}
@@ -14,7 +11,8 @@ public class User
     public Role Role {get; init;}
     public byte[] Password {get; init;}
 
-    public User(string email, string firstName, string lastName, Role role, byte[] password) {
+    public User(int id, string email, string firstName, string lastName, Role role, byte[] password) {
+        Id = id;
         Email = email;
         FirstName = firstName;
         LastName = lastName;

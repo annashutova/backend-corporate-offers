@@ -1,12 +1,10 @@
 using CorporateOffers.Data;
 using CorporateOffers.Models;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CorporateOffers.Entities;
 
 public class Offer
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id {get; init;}
     public string? Name {get; private set;}
     public string? Annotation {get; private set;}
@@ -22,6 +20,26 @@ public class Offer
     public List<string?> Links { get; private set; } = [];
     public string? ImagePath { get; private set; }
     public List<City?> Cities { get; private set; } = [];
+
+    public Offer(int id, string? name, string? annotation, string? companyUrl,
+        string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
+        Status status, int? categoryId, List<string?> links, string? imagePath, int? discountSize = null) {
+        Id = id;
+        Name = name;
+        Annotation = annotation;
+        CompanyUrl = companyUrl;
+        Description = description;
+        StartDate = startDate;
+        EndDate = endDate;
+        OfferType = offerType;
+        DiscountSize = discountSize;
+        Status = status;
+        CategoryId = categoryId;
+        Links = links;
+        ImagePath = imagePath;
+    }
+
+    // перегрузка конструктора
     public Offer(string? name, string? annotation, string? companyUrl,
         string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
         Status status, List<string?> links, string? imagePath, int? categoryId, int? discountSize = null) {

@@ -1,19 +1,18 @@
 using System.Text.Json.Serialization;
 using CorporateOffers.Data;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CorporateOffers.Entities;
 
 public class Category
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id {get; init;}
     public string Name {get; init;}
     [JsonIgnore]
     public List<Offer> Offers { get; } = [];
 
-    public Category(string name) {
+    public Category(int id, string name) {
+        Id = id;
         Name = name;
     }
 
