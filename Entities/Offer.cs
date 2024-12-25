@@ -42,7 +42,7 @@ public class Offer
     // перегрузка конструктора
     public Offer(string? name, string? annotation, string? companyUrl,
         string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
-        Status status, List<string?> links, string? imagePath, int? categoryId, int? discountSize = null) {
+        Status status, List<string>? links, string? imagePath, int? categoryId, int? discountSize = null) {
         Name = name;
         Annotation = annotation;
         CompanyUrl = companyUrl;
