@@ -216,25 +216,32 @@ public class OffersController: ControllerBase
             categoryId = category.Id;
         }
 
-        // Проверяем, существуют ли города в базе
-        if (request.Cities.Count > 0)
-        {
-            var cityExists = await _dbContext.Cities
-                .Where(city => request.Cities.Contains(city.Name))
-                .AnyAsync(cancellationToken);
-            if (!cityExists)
-            {
-                return BadRequest(new { message = "Один или несколько городов не существуют" });
-            }
-        }
+        // // Проверяем, существуют ли города в базе
+        // if (request.Cities != null)
+        // {
+        //     var cityExists = await _dbContext.Cities
+        //         .Where(city => request.Cities.Contains(city.Name))
+        //         .AnyAsync(cancellationToken);
+        //     if (!cityExists)
+        //     {
+        //         return BadRequest(new { message = "Один или несколько городов не существуют" });
+        //     }
+        // }
 
         var cities = new List<City?>();
-        foreach (var cityName in request.Cities)
+        if (request.Cities != null)
         {
-            var city = await City.GetByName(_dbContext, cityName, cancellationToken);
-            if (city != null)
+            foreach (var cityName in request.Cities)
             {
-                cities.Add(city);
+                var city = await City.GetByName(_dbContext, cityName, cancellationToken);
+                if (city != null)
+                {
+                    cities.Add(city);
+                }
+                else
+                {
+                    return BadRequest(new { message = "Один или несколько городов не существуют" });
+                }
             }
         }
 

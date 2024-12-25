@@ -15,7 +15,7 @@ public record CreateOfferData (
     List<string?> Links,
     string? ImagePath, 
     string? Category, 
-    List<string?> Cities
+    List<string>? Cities
 )
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
