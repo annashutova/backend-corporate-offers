@@ -20,7 +20,7 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
         builder.HasOne<Category>(p => p.Category)
             .WithMany(c => c.Offers)
             .OnDelete(DeleteBehavior.Cascade);
-        
+
         builder.HasData(new Offer[] {
             new (1, "name", "annotation", "url", "description",
                 DateTime.UtcNow, DateTime.UtcNow.Add(TimeSpan.FromDays(1)),
