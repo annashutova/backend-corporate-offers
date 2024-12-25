@@ -175,9 +175,10 @@ public class OffersController: ControllerBase
                 request.EndDate == null ||
                 request.Cities.Count == 0 ||
                 (request.DiscountSize == null && offerType == OfferType.Discount) ||
+                (request.DiscountSize != null && offerType == OfferType.Benefit) ||
                 request.DiscountSize < 0 || request.DiscountSize > 100)
             {
-                return BadRequest(new { message = "Все поля обязательны для заполнения, и DiscountSize должен быть от 0 до 100 для данного типа предложения" });
+                return BadRequest(new { message = "Все поля обязательны для заполнения, и DiscountSize должен быть от 0 до 100 для предложения типа Discount" });
             }
         }
 
@@ -190,6 +191,11 @@ public class OffersController: ControllerBase
         if (offerType == OfferType.Discount && request.DiscountSize is < 0 or > 100)
         {
             return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
+        }
+
+        if (offerType == OfferType.Benefit && request.DiscountSize != null)
+        {
+            return BadRequest(new { message = "Для предложения типа Benefit нельзя указать размер скидки DiscountSize" });
         }
 
         // Проверяем, существует ли категория в базе
@@ -232,7 +238,7 @@ public class OffersController: ControllerBase
             }
         }
 
-        // Создаем нового предложения
+        // Создаем новое предложение
         var newOffer = new Offer
         (
             name: request.Name,
