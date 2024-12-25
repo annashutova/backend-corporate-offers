@@ -19,33 +19,16 @@ public class OffersController: ControllerBase
     }
 
     [Authorize]
-    [HttpGet("")]
-    public async Task<IActionResult> GetOffers(
-        [FromQuery] string status,
-        [FromQuery] string city,
-        [FromQuery] string category,
+    [HttpGet("/active")]
+    public async Task<IActionResult> GetActiveOffers(
+        [FromQuery] string? city,
+        [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
-        // Проверка валидности статуса
-        if (status != "Active" && status != "Draft" && status != "Archived")
-        {
-            return BadRequest("Неверный статус.");
-        }
-        // TODO доступ к archive и draft только у админов
-
         var offersQuery = _dbContext.Offers.AsQueryable();
 
         // Фильтрация по статусу
-        Status statusEnum = (Status)Enum.Parse(typeof(Status), status);
-        offersQuery = offersQuery.Where(o => o.Status == statusEnum);
-
-        // Фильтрация по городу, если он задан
-        if (!string.IsNullOrEmpty(city))
-        {
-            offersQuery = offersQuery.Where(o =>
-                o.Cities != null &&
-                o.Cities.Any(c => c.Name == city));
-        }
+        offersQuery = offersQuery.Where(o => o.Status == Status.Active);
 
         // Фильтрация по категории, если она задана
         if (!string.IsNullOrEmpty(category))
@@ -53,6 +36,77 @@ public class OffersController: ControllerBase
             offersQuery = offersQuery.Where(o => 
                 o.Category != null && 
                 o.Category.Name == category);
+        }
+
+        // Фильтрация по городу, если он задан
+        if (!string.IsNullOrEmpty(city))
+        {
+            offersQuery = offersQuery.Where(o => 
+                o.Cities.Any(c => c.Name == city));
+        }
+
+        var offers = await offersQuery.ToListAsync(cancellationToken);
+
+        return Ok(offers);
+    }
+
+    [Authorize(Policy = "AdminPolicy")]
+    [HttpGet("/draft")]
+    public async Task<IActionResult> GetDraftOffers(
+        [FromQuery] string? city,
+        [FromQuery] string? category,
+        CancellationToken cancellationToken)
+    {
+        var offersQuery = _dbContext.Offers.AsQueryable();
+
+        // Фильтрация по статусу
+        offersQuery = offersQuery.Where(o => o.Status == Status.Draft);
+
+        // Фильтрация по категории, если она задана
+        if (!string.IsNullOrEmpty(category))
+        {
+            offersQuery = offersQuery.Where(o => 
+                o.Category != null && 
+                o.Category.Name == category);
+        }
+
+        // Фильтрация по городу, если он задан
+        if (!string.IsNullOrEmpty(city))
+        {
+            offersQuery = offersQuery.Where(o => 
+                o.Cities.Any(c => c.Name == city));
+        }
+
+        var offers = await offersQuery.ToListAsync(cancellationToken);
+
+        return Ok(offers);
+    }
+
+    [Authorize(Policy = "AdminPolicy")]
+    [HttpGet("/archived")]
+    public async Task<IActionResult> GetArchivedOffers(
+        [FromQuery] string? city,
+        [FromQuery] string category,
+        CancellationToken cancellationToken)
+    {
+        var offersQuery = _dbContext.Offers.AsQueryable();
+
+        // Фильтрация по статусу
+        offersQuery = offersQuery.Where(o => o.Status == Status.Archived);
+
+        // Фильтрация по категории, если она задана
+        if (!string.IsNullOrEmpty(category))
+        {
+            offersQuery = offersQuery.Where(o => 
+                o.Category != null && 
+                o.Category.Name == category);
+        }
+
+        // Фильтрация по городу, если он задан
+        if (!string.IsNullOrEmpty(city))
+        {
+            offersQuery = offersQuery.Where(o => 
+                o.Cities.Any(c => c.Name == city));
         }
 
         var offers = await offersQuery.ToListAsync(cancellationToken);
@@ -70,7 +124,7 @@ public class OffersController: ControllerBase
         // Проверка, существует ли предложение
         if (offer == null)
         {
-            return NotFound($"Предложение с id={id} не найдено.");
+            return NotFound($"Предложение с id={id} не найдено");
         }
 
         return Ok(offer);
@@ -84,13 +138,13 @@ public class OffersController: ControllerBase
     {
         if (request.StartDate > request.EndDate)
         {
-            return BadRequest(new { message = "Дата начала предложения не может быть меньше даты окончания" });
+            return BadRequest(new { message = "Дата начала предложения не может быть больше даты окончания" });
         }
 
         // Проверяем статус предложения
         if (request.Status == Status.Archived)
         {
-            return BadRequest(new { message = "Невозможно создать архивное предложение." });
+            return BadRequest(new { message = "Невозможно создать архивное предложение" });
         }
 
         // Проверяем и преобразуем в Enum тип предложения
@@ -145,29 +199,16 @@ public class OffersController: ControllerBase
                 .AnyAsync(c => c.Name == request.Category, cancellationToken);
             if (!categoryExists)
             {
-                return BadRequest(new { message = $"Категория {request.Category} не существует" });
+                return BadRequest(new { message = $"Категории {request.Category} не существует" });
             }
         }
 
         // Получаем ID категории
         var category = request.Category != null ? await Category.GetByName(_dbContext, request.Category, cancellationToken) : null;
-
-        // Создаем нового предложения
-        var newOffer = new Offer
-        (
-            name: request.Name,
-            annotation: request.Annotation,
-            companyUrl: request.CompanyUrl,
-            description: request.Description,
-            startDate: request.StartDate?.ToUniversalTime(),
-            endDate: request.EndDate?.ToUniversalTime(),
-            offerType: offerType,
-            status: request.Status,
-            categoryId: category.Id,
-            links: request.Links,
-            imagePath: request.ImagePath,
-            discountSize: request.DiscountSize
-        );
+        int? categoryId = null;
+        if (category != null) {
+            categoryId = category.Id;
+        }
 
         // Проверяем, существуют ли города в базе
         if (request.Cities.Count > 0)
@@ -191,11 +232,30 @@ public class OffersController: ControllerBase
             }
         }
 
+        // Создаем нового предложения
+        var newOffer = new Offer
+        (
+            name: request.Name,
+            annotation: request.Annotation,
+            companyUrl: request.CompanyUrl,
+            description: request.Description,
+            startDate: request.StartDate?.ToUniversalTime(),
+            endDate: request.EndDate?.ToUniversalTime(),
+            offerType: offerType,
+            status: request.Status,
+            categoryId: categoryId,
+            links: request.Links,
+            imagePath: request.ImagePath,
+            discountSize: request.DiscountSize
+        );
+
+        newOffer.Cities = cities;
+
         _dbContext.Offers.Add(newOffer);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return CreatedAtAction(nameof(GetOffers), new { id = newOffer.Id }, newOffer);
+        return CreatedAtAction(nameof(CreateOffer), new { id = newOffer.Id }, newOffer);
     }
     
     [Authorize(Policy = "AdminPolicy")]
@@ -224,7 +284,7 @@ public class OffersController: ControllerBase
         
         if (request.StartDate > request.EndDate)
         {
-            return BadRequest(new { message = "Дата начала предложения не может быть меньше даты окончания" });
+            return BadRequest(new { message = "Дата начала предложения не может быть больше даты окончания" });
         }
         
         // Пытаемся найти предложение

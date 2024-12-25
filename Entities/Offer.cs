@@ -19,7 +19,7 @@ public class Offer
     public Category? Category { get; private set; }
     public List<string?> Links { get; private set; } = [];
     public string? ImagePath { get; private set; }
-    public List<City?> Cities { get; private set; } = [];
+    public List<City?> Cities { get; set; } = [];
 
     public Offer(int id, string? name, string? annotation, string? companyUrl,
         string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
