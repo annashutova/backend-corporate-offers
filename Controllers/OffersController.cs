@@ -84,11 +84,20 @@ public class OffersController: ControllerBase
                 string.IsNullOrWhiteSpace(request.ImagePath) ||
                 request.StartDate == null ||
                 request.EndDate == null ||
-                request.Cities.Count == 0 ||
-                (request.DiscountSize == null && offerType == OfferType.Discount) ||
+                request.Cities.Count == 0)
+            {
+                return BadRequest(new { message = "Все поля обязательны для заполнения" });
+            }
+
+            if ((request.DiscountSize == null && offerType == OfferType.Discount) ||
                 (request.DiscountSize < 0 || request.DiscountSize > 100))
             {
-                return BadRequest(new { message = "Все поля обязательны для заполнения, и DiscountSize должен быть от 0 до 100 для данного типа предложения" });
+                return BadRequest(new { message = "DiscountSize должен быть от 0 до 100 для данного типа предложения" });
+            }
+            
+            if (request.DiscountSize != null && offerType == OfferType.Benefit)
+            {
+                return BadRequest(new { message = "Для данного типа предложения значение DiscountSize недействительно" });
             }
         }
 
@@ -102,6 +111,11 @@ public class OffersController: ControllerBase
         {
             return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
         }
+        
+        if (request.DiscountSize != null && offerType == OfferType.Benefit)
+        {
+            return BadRequest(new { message = "Для данного типа предложения значение DiscountSize недействительно" });
+        }
 
         // Проверяем, существует ли категория в базе
         if (request.Category != null)
@@ -113,18 +127,6 @@ public class OffersController: ControllerBase
                 return BadRequest(new { message = $"Категория {request.Category} не существует" });
             }
         }
-        
-        // Проверяем, существуют ли города в базе
-        if (request.Cities.Count > 0)
-        {
-            var cityExists = await _dbContext.Cities
-                .Where(city => request.Cities.Contains(city.Name))
-                .AnyAsync(cancellationToken);
-            if (!cityExists)
-            {
-                return BadRequest(new { message = "Один или несколько городов не существуют" });
-            }
-        }
 
         var category = request.Category != null ? await Category.GetByName(_dbContext, request.Category, cancellationToken) : null;
 
@@ -132,10 +134,11 @@ public class OffersController: ControllerBase
         foreach (var cityName in request.Cities)
         {
             var city = await City.GetByName(_dbContext, cityName, cancellationToken);
-            if (city != null)
+            if (city == null)
             {
-                cities.Add(city);
+                return BadRequest(new { message = $"Город {cityName} не существует" });
             }
+            cities.Add(city);
         }
 
         var offerData = new EditOfferData(
