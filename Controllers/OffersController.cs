@@ -166,17 +166,6 @@ public class OffersController: ControllerBase
         // Проверяем, если статус - Active
         if (request.Status == Status.Active)
         {
-            // Проверяем тип предложения
-            if (offerTypeNotPresent)
-            {
-                return BadRequest(new { message = "Все поля обязательны для заполнения" });
-            }
-
-            if (!offerTypeIsValid)
-            {
-                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
-            }
-            
             if (string.IsNullOrWhiteSpace(request.Name) ||
                 string.IsNullOrWhiteSpace(request.Annotation) ||
                 string.IsNullOrWhiteSpace(request.CompanyUrl) ||
@@ -186,30 +175,29 @@ public class OffersController: ControllerBase
                 request.StartDate == null ||
                 request.EndDate == null ||
                 request.Cities.Count == 0 ||
-                (request.DiscountSize == null && offerType == OfferType.Discount) ||
-                (request.DiscountSize != null && offerType == OfferType.Benefit) ||
-                request.DiscountSize < 0 || request.DiscountSize > 100)
+                offerTypeNotPresent)
             {
-                return BadRequest(new { message = "Все поля обязательны для заполнения, и DiscountSize должен быть от 0 до 100 для предложения типа Discount" });
+                return BadRequest(new { message = "Все поля обязательны для заполнения" });
             }
         }
 
         // Проверяем OfferType и DiscountSize
-        if (!offerTypeIsValid)
+        if (!offerTypeNotPresent)
         {
-            return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+            if (!offerTypeIsValid)
+            {
+                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+            }
+        
+            switch (offerType)
+            {
+                case OfferType.Discount when request.DiscountSize is < 0 or > 100:
+                    return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
+                case OfferType.Benefit when request.DiscountSize != null:
+                    return BadRequest(new { message = "Для предложения типа Benefit нельзя указать размер скидки DiscountSize" });
+            }
         }
         
-        if (offerType == OfferType.Discount && request.DiscountSize is < 0 or > 100)
-        {
-            return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
-        }
-
-        if (offerType == OfferType.Benefit && request.DiscountSize != null)
-        {
-            return BadRequest(new { message = "Для предложения типа Benefit нельзя указать размер скидки DiscountSize" });
-        }
-
         // Проверяем, существует ли категория в базе
         if (request.Category != null)
         {
@@ -318,17 +306,6 @@ public class OffersController: ControllerBase
         // Проверяем, если статус - Active
         if (request.Status == Status.Active)
         {
-            // Проверяем тип предлоения
-            if (offerTypeNotPresent)
-            {
-                return BadRequest(new { message = "Все поля обязательны для заполнения" });
-            }
-
-            if (!offerTypeIsValid)
-            {
-                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
-            }
-            
             if (string.IsNullOrWhiteSpace(request.Name) ||
                 string.IsNullOrWhiteSpace(request.Annotation) ||
                 string.IsNullOrWhiteSpace(request.CompanyUrl) ||
@@ -337,37 +314,28 @@ public class OffersController: ControllerBase
                 string.IsNullOrWhiteSpace(request.ImagePath) ||
                 request.StartDate == null ||
                 request.EndDate == null ||
-                request.Cities.Count == 0)
+                request.Cities.Count == 0 ||
+                offerTypeNotPresent)
             {
                 return BadRequest(new { message = "Все поля обязательны для заполнения" });
-            }
-
-            if ((request.DiscountSize == null && offerType == OfferType.Discount) ||
-                (request.DiscountSize < 0 || request.DiscountSize > 100))
-            {
-                return BadRequest(new { message = "DiscountSize должен быть от 0 до 100 для данного типа предложения" });
-            }
-            
-            if (request.DiscountSize != null && offerType == OfferType.Benefit)
-            {
-                return BadRequest(new { message = "Для данного типа предложения значение DiscountSize недействительно" });
             }
         }
 
         // Проверяем OfferType и DiscountSize
-        if (!offerTypeIsValid)
+        if (!offerTypeNotPresent)
         {
-            return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
-        }
+            if (!offerTypeIsValid)
+            {
+                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+            }
         
-        if (offerType == OfferType.Discount && request.DiscountSize is < 0 or > 100)
-        {
-            return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
-        }
-        
-        if (request.DiscountSize != null && offerType == OfferType.Benefit)
-        {
-            return BadRequest(new { message = "Для данного типа предложения значение DiscountSize недействительно" });
+            switch (offerType)
+            {
+                case OfferType.Discount when request.DiscountSize is < 0 or > 100:
+                    return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
+                case OfferType.Benefit when request.DiscountSize != null:
+                    return BadRequest(new { message = "Для предложения типа Benefit нельзя указать размер скидки DiscountSize" });
+            }
         }
 
         // Проверяем, существует ли категория в базе
