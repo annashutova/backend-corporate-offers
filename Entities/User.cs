@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using CorporateOffers.Utils;
 
 namespace CorporateOffers.Entities;
@@ -9,6 +10,7 @@ public class User
     public string FirstName {get; init;}
     public string LastName {get; init;}
     public Role Role {get; init;}
+    [JsonIgnore]
     public byte[] Password {get; init;}
 
     public User(int id, string email, string firstName, string lastName, Role role, byte[] password) {

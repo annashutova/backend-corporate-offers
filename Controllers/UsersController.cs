@@ -36,7 +36,7 @@ public class UsersController: ControllerBase
         }
 
         var token = _jwtService.GenerateToken(user);
-        return Ok(new LoginResult(token));
+        return Ok(new LoginResult(token, user));
     }
     
     [Authorize]
