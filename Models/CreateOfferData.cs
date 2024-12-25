@@ -12,10 +12,10 @@ public record CreateOfferData (
     DateTime? EndDate, 
     string? OfferType, 
     int? DiscountSize, 
-    List<string>? Links,
+    List<string?> Links,
     string? ImagePath, 
     string? Category, 
-    List<string>? Cities
+    List<string?> Cities
 )
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]

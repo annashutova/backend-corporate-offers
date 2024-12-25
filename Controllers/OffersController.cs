@@ -19,7 +19,7 @@ public class OffersController: ControllerBase
     }
 
     [Authorize]
-    [HttpGet("/active")]
+    [HttpGet("active")]
     public async Task<IActionResult> GetActiveOffers(
         [FromQuery] string? city,
         [FromQuery] string? category,
@@ -45,13 +45,16 @@ public class OffersController: ControllerBase
                 o.Cities.Any(c => c.Name == city));
         }
 
-        var offers = await offersQuery.ToListAsync(cancellationToken);
+        var offers = await offersQuery
+            .Include(o => o.Cities)
+            .Include(o => o.Category)
+            .ToListAsync(cancellationToken);
 
         return Ok(offers);
     }
 
     [Authorize(Policy = "AdminPolicy")]
-    [HttpGet("/draft")]
+    [HttpGet("draft")]
     public async Task<IActionResult> GetDraftOffers(
         [FromQuery] string? city,
         [FromQuery] string? category,
@@ -77,13 +80,16 @@ public class OffersController: ControllerBase
                 o.Cities.Any(c => c.Name == city));
         }
 
-        var offers = await offersQuery.ToListAsync(cancellationToken);
+        var offers = await offersQuery
+            .Include(o => o.Cities)
+            .Include(o => o.Category)
+            .ToListAsync(cancellationToken);
 
         return Ok(offers);
     }
 
     [Authorize(Policy = "AdminPolicy")]
-    [HttpGet("/archived")]
+    [HttpGet("archived")]
     public async Task<IActionResult> GetArchivedOffers(
         [FromQuery] string? city,
         [FromQuery] string category,
@@ -109,7 +115,10 @@ public class OffersController: ControllerBase
                 o.Cities.Any(c => c.Name == city));
         }
 
-        var offers = await offersQuery.ToListAsync(cancellationToken);
+        var offers = await offersQuery
+            .Include(o => o.Cities)
+            .Include(o => o.Category)
+            .ToListAsync(cancellationToken);
 
         return Ok(offers);
     }
@@ -119,7 +128,10 @@ public class OffersController: ControllerBase
     public async Task<IActionResult> GetOfferById(int id, CancellationToken cancellationToken)
     {
         // Поиск предложения по id
-        var offer = await _dbContext.Offers.FindAsync([id], cancellationToken);
+        var offer = await _dbContext.Offers
+            .Include(o => o.Category)
+            .Include(o => o.Cities)
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
 
         // Проверка, существует ли предложение
         if (offer == null)
@@ -216,20 +228,8 @@ public class OffersController: ControllerBase
             categoryId = category.Id;
         }
 
-        // // Проверяем, существуют ли города в базе
-        // if (request.Cities != null)
-        // {
-        //     var cityExists = await _dbContext.Cities
-        //         .Where(city => request.Cities.Contains(city.Name))
-        //         .AnyAsync(cancellationToken);
-        //     if (!cityExists)
-        //     {
-        //         return BadRequest(new { message = "Один или несколько городов не существуют" });
-        //     }
-        // }
-
         var cities = new List<City?>();
-        if (request.Cities != null)
+        if (request.Cities.Count > 0)
         {
             foreach (var cityName in request.Cities)
             {
