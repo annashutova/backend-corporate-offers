@@ -92,7 +92,7 @@ public class OffersController: ControllerBase
     [HttpGet("archived")]
     public async Task<IActionResult> GetArchivedOffers(
         [FromQuery] string? city,
-        [FromQuery] string category,
+        [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
         var offersQuery = _dbContext.Offers.AsQueryable();
