@@ -256,12 +256,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url",
                             Description = "description",
-                            EndDate = new DateTime(2024, 12, 26, 12, 30, 17, 562, DateTimeKind.Utc).AddTicks(6948),
+                            EndDate = new DateTime(2024, 12, 28, 10, 56, 50, 713, DateTimeKind.Utc).AddTicks(7410),
                             ImagePath = "",
                             Links = new List<string> { "link1", "link2" },
                             Name = "name",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 25, 12, 30, 17, 562, DateTimeKind.Utc).AddTicks(6598),
+                            StartDate = new DateTime(2024, 12, 27, 10, 56, 50, 713, DateTimeKind.Utc).AddTicks(7070),
                             Status = 0
                         },
                         new
@@ -272,12 +272,12 @@ namespace CorporateOffers.Migrations
                             CompanyUrl = "url2",
                             Description = "description2",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 27, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1479),
+                            EndDate = new DateTime(2024, 12, 29, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1925),
                             ImagePath = "",
                             Links = new List<string>(),
                             Name = "name2",
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 25, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1478),
+                            StartDate = new DateTime(2024, 12, 27, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1924),
                             Status = 1
                         },
                         new
@@ -287,11 +287,11 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             Description = "description3",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 28, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1494),
+                            EndDate = new DateTime(2024, 12, 30, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1942),
                             ImagePath = "",
                             Links = new List<string> { "link3" },
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 25, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1494),
+                            StartDate = new DateTime(2024, 12, 27, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1941),
                             Status = 1
                         },
                         new
@@ -301,12 +301,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url4",
                             Description = "description4",
-                            EndDate = new DateTime(2024, 12, 29, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1504),
+                            EndDate = new DateTime(2024, 12, 31, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1950),
                             ImagePath = "",
                             Links = new List<string> { "link" },
                             Name = "name4",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 26, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1503),
+                            StartDate = new DateTime(2024, 12, 28, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1950),
                             Status = 2
                         },
                         new
@@ -316,12 +316,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             CompanyUrl = "url5",
                             Description = "description5",
-                            EndDate = new DateTime(2024, 12, 30, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1508),
+                            EndDate = new DateTime(2025, 1, 1, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1954),
                             ImagePath = "",
                             Links = new List<string> { "link" },
                             Name = "name5",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 27, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1507),
+                            StartDate = new DateTime(2024, 12, 29, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1953),
                             Status = 0
                         });
                 });
@@ -364,6 +364,9 @@ namespace CorporateOffers.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")
                         .IsRequired()

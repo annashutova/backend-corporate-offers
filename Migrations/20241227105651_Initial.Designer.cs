@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CorporateOffers.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241223112410_Image")]
-    partial class Image
+    [Migration("20241227105651_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,6 +92,21 @@ namespace CorporateOffers.Migrations
                         {
                             CitiesId = 3,
                             OffersId = 4
+                        },
+                        new
+                        {
+                            CitiesId = 2,
+                            OffersId = 5
+                        },
+                        new
+                        {
+                            CitiesId = 3,
+                            OffersId = 5
+                        },
+                        new
+                        {
+                            CitiesId = 4,
+                            OffersId = 5
                         });
                 });
 
@@ -244,12 +259,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url",
                             Description = "description",
-                            EndDate = new DateTime(2024, 12, 24, 11, 24, 10, 168, DateTimeKind.Utc).AddTicks(9067),
+                            EndDate = new DateTime(2024, 12, 28, 10, 56, 50, 713, DateTimeKind.Utc).AddTicks(7410),
                             ImagePath = "",
                             Links = new List<string> { "link1", "link2" },
                             Name = "name",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 23, 11, 24, 10, 168, DateTimeKind.Utc).AddTicks(8722),
+                            StartDate = new DateTime(2024, 12, 27, 10, 56, 50, 713, DateTimeKind.Utc).AddTicks(7070),
                             Status = 0
                         },
                         new
@@ -260,12 +275,12 @@ namespace CorporateOffers.Migrations
                             CompanyUrl = "url2",
                             Description = "description2",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 25, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3646),
+                            EndDate = new DateTime(2024, 12, 29, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1925),
                             ImagePath = "",
                             Links = new List<string>(),
                             Name = "name2",
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 23, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3645),
+                            StartDate = new DateTime(2024, 12, 27, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1924),
                             Status = 1
                         },
                         new
@@ -275,11 +290,11 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             Description = "description3",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 26, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3661),
+                            EndDate = new DateTime(2024, 12, 30, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1942),
                             ImagePath = "",
                             Links = new List<string> { "link3" },
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 23, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3661),
+                            StartDate = new DateTime(2024, 12, 27, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1941),
                             Status = 1
                         },
                         new
@@ -289,12 +304,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url4",
                             Description = "description4",
-                            EndDate = new DateTime(2024, 12, 27, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3670),
+                            EndDate = new DateTime(2024, 12, 31, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1950),
                             ImagePath = "",
                             Links = new List<string> { "link" },
                             Name = "name4",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 24, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3669),
+                            StartDate = new DateTime(2024, 12, 28, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1950),
                             Status = 2
                         },
                         new
@@ -304,12 +319,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             CompanyUrl = "url5",
                             Description = "description5",
-                            EndDate = new DateTime(2024, 12, 28, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3674),
+                            EndDate = new DateTime(2025, 1, 1, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1954),
                             ImagePath = "",
                             Links = new List<string> { "link" },
                             Name = "name5",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 25, 11, 24, 10, 169, DateTimeKind.Utc).AddTicks(3673),
+                            StartDate = new DateTime(2024, 12, 29, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1953),
                             Status = 0
                         });
                 });
@@ -352,6 +367,9 @@ namespace CorporateOffers.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")
                         .IsRequired()
