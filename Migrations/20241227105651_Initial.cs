@@ -65,7 +65,8 @@ namespace CorporateOffers.Migrations
                     FirstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false),
-                    Password = table.Column<byte[]>(type: "bytea", maxLength: 32, nullable: false)
+                    Password = table.Column<byte[]>(type: "bytea", maxLength: 32, nullable: false),
+                    LastLogin = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -88,7 +89,8 @@ namespace CorporateOffers.Migrations
                     DiscountSize = table.Column<int>(type: "integer", nullable: true),
                     Status = table.Column<int>(type: "integer", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: true),
-                    Links = table.Column<List<string>>(type: "text[]", nullable: false)
+                    Links = table.Column<List<string>>(type: "text[]", nullable: false),
+                    ImagePath = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -149,23 +151,23 @@ namespace CorporateOffers.Migrations
 
             migrationBuilder.InsertData(
                 table: "users",
-                columns: new[] { "Id", "Email", "FirstName", "LastName", "Password", "Role" },
+                columns: new[] { "Id", "Email", "FirstName", "LastLogin", "LastName", "Password", "Role" },
                 values: new object[,]
                 {
-                    { 1, "email@gmail.com", "Ivan", "Ivanov", new byte[] { 166, 101, 164, 89, 32, 66, 47, 157, 65, 126, 72, 103, 239, 220, 79, 184, 160, 74, 31, 63, 255, 31, 160, 126, 153, 142, 134, 247, 247, 162, 122, 227 }, 1 },
-                    { 2, "email", "Marina", "Ivanova", new byte[] { 166, 101, 164, 89, 32, 66, 47, 157, 65, 126, 72, 103, 239, 220, 79, 184, 160, 74, 31, 63, 255, 31, 160, 126, 153, 142, 134, 247, 247, 162, 122, 227 }, 0 }
+                    { 1, "email@gmail.com", "Ivan", null, "Ivanov", new byte[] { 166, 101, 164, 89, 32, 66, 47, 157, 65, 126, 72, 103, 239, 220, 79, 184, 160, 74, 31, 63, 255, 31, 160, 126, 153, 142, 134, 247, 247, 162, 122, 227 }, 1 },
+                    { 2, "email", "Marina", null, "Ivanova", new byte[] { 166, 101, 164, 89, 32, 66, 47, 157, 65, 126, 72, 103, 239, 220, 79, 184, 160, 74, 31, 63, 255, 31, 160, 126, 153, 142, 134, 247, 247, 162, 122, 227 }, 0 }
                 });
 
             migrationBuilder.InsertData(
                 table: "offers",
-                columns: new[] { "Id", "Annotation", "CategoryId", "CompanyUrl", "Description", "DiscountSize", "EndDate", "Links", "Name", "OfferType", "StartDate", "Status" },
+                columns: new[] { "Id", "Annotation", "CategoryId", "CompanyUrl", "Description", "DiscountSize", "EndDate", "ImagePath", "Links", "Name", "OfferType", "StartDate", "Status" },
                 values: new object[,]
                 {
-                    { 1, "annotation", 1, "url", "description", null, new DateTime(2024, 12, 23, 7, 17, 1, 594, DateTimeKind.Utc).AddTicks(3987), new List<string> { "link1", "link2" }, "name", 0, new DateTime(2024, 12, 22, 7, 17, 1, 594, DateTimeKind.Utc).AddTicks(3615), 0 },
-                    { 2, "annotation2", 1, "url2", "description2", 10, new DateTime(2024, 12, 24, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1664), new List<string>(), "name2", 1, new DateTime(2024, 12, 22, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1663), 1 },
-                    { 3, "annotation3", 2, null, "description3", 10, new DateTime(2024, 12, 25, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1691), new List<string> { "link3" }, null, 1, new DateTime(2024, 12, 22, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1691), 1 },
-                    { 4, "annotation4", 1, "url4", "description4", null, new DateTime(2024, 12, 26, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1707), new List<string> { "link" }, "name4", 0, new DateTime(2024, 12, 23, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1707), 2 },
-                    { 5, "annotation5", 2, "url5", "description5", null, new DateTime(2024, 12, 27, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1711), new List<string> { "link" }, "name5", 0, new DateTime(2024, 12, 24, 7, 17, 1, 595, DateTimeKind.Utc).AddTicks(1710), 0 }
+                    { 1, "annotation", 1, "url", "description", null, new DateTime(2024, 12, 28, 10, 56, 50, 713, DateTimeKind.Utc).AddTicks(7410), "", new List<string> { "link1", "link2" }, "name", 0, new DateTime(2024, 12, 27, 10, 56, 50, 713, DateTimeKind.Utc).AddTicks(7070), 0 },
+                    { 2, "annotation2", 1, "url2", "description2", 10, new DateTime(2024, 12, 29, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1925), "", new List<string>(), "name2", 1, new DateTime(2024, 12, 27, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1924), 1 },
+                    { 3, "annotation3", 2, null, "description3", 10, new DateTime(2024, 12, 30, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1942), "", new List<string> { "link3" }, null, 1, new DateTime(2024, 12, 27, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1941), 1 },
+                    { 4, "annotation4", 1, "url4", "description4", null, new DateTime(2024, 12, 31, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1950), "", new List<string> { "link" }, "name4", 0, new DateTime(2024, 12, 28, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1950), 2 },
+                    { 5, "annotation5", 2, "url5", "description5", null, new DateTime(2025, 1, 1, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1954), "", new List<string> { "link" }, "name5", 0, new DateTime(2024, 12, 29, 10, 56, 50, 714, DateTimeKind.Utc).AddTicks(1953), 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -178,11 +180,14 @@ namespace CorporateOffers.Migrations
                     { 1, 4 },
                     { 2, 1 },
                     { 2, 2 },
+                    { 2, 5 },
                     { 3, 1 },
                     { 3, 3 },
                     { 3, 4 },
+                    { 3, 5 },
                     { 4, 2 },
-                    { 4, 3 }
+                    { 4, 3 },
+                    { 4, 5 }
                 });
 
             migrationBuilder.CreateIndex(
