@@ -73,8 +73,7 @@ public class OffersController: ControllerBase
 
     [Authorize(Policy = "AdminPolicy")]
     [HttpGet("archived")]
-    public async Task<IActionResult> GetArchivedOffers(
-        CancellationToken cancellationToken)
+    public async Task<IActionResult> GetArchivedOffers(CancellationToken cancellationToken)
     {
         var offersQuery = _dbContext.Offers.AsQueryable();
 
