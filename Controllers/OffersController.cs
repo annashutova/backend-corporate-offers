@@ -56,29 +56,12 @@ public class OffersController: ControllerBase
     [Authorize(Policy = "AdminPolicy")]
     [HttpGet("draft")]
     public async Task<IActionResult> GetDraftOffers(
-        [FromQuery] string? city,
-        [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
         var offersQuery = _dbContext.Offers.AsQueryable();
 
         // Фильтрация по статусу
         offersQuery = offersQuery.Where(o => o.Status == Status.Draft);
-
-        // Фильтрация по категории, если она задана
-        if (!string.IsNullOrEmpty(category))
-        {
-            offersQuery = offersQuery.Where(o => 
-                o.Category != null && 
-                o.Category.Name == category);
-        }
-
-        // Фильтрация по городу, если он задан
-        if (!string.IsNullOrEmpty(city))
-        {
-            offersQuery = offersQuery.Where(o => 
-                o.Cities.Any(c => c.Name == city));
-        }
 
         var offers = await offersQuery
             .Include(o => o.Cities)
@@ -91,29 +74,12 @@ public class OffersController: ControllerBase
     [Authorize(Policy = "AdminPolicy")]
     [HttpGet("archived")]
     public async Task<IActionResult> GetArchivedOffers(
-        [FromQuery] string? city,
-        [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
         var offersQuery = _dbContext.Offers.AsQueryable();
 
         // Фильтрация по статусу
         offersQuery = offersQuery.Where(o => o.Status == Status.Archived);
-
-        // Фильтрация по категории, если она задана
-        if (!string.IsNullOrEmpty(category))
-        {
-            offersQuery = offersQuery.Where(o => 
-                o.Category != null && 
-                o.Category.Name == category);
-        }
-
-        // Фильтрация по городу, если он задан
-        if (!string.IsNullOrEmpty(city))
-        {
-            offersQuery = offersQuery.Where(o => 
-                o.Cities.Any(c => c.Name == city));
-        }
 
         var offers = await offersQuery
             .Include(o => o.Cities)
