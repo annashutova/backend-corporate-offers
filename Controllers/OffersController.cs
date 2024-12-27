@@ -19,7 +19,7 @@ public class OffersController: ControllerBase
     }
 
     [Authorize]
-    [HttpGet("/active")]
+    [HttpGet("active")]
     public async Task<IActionResult> GetActiveOffers(
         [FromQuery] string? city,
         [FromQuery] string? category,
@@ -45,13 +45,16 @@ public class OffersController: ControllerBase
                 o.Cities.Any(c => c.Name == city));
         }
 
-        var offers = await offersQuery.ToListAsync(cancellationToken);
+        var offers = await offersQuery
+            .Include(o => o.Cities)
+            .Include(o => o.Category)
+            .ToListAsync(cancellationToken);
 
         return Ok(offers);
     }
 
     [Authorize(Policy = "AdminPolicy")]
-    [HttpGet("/draft")]
+    [HttpGet("draft")]
     public async Task<IActionResult> GetDraftOffers(
         [FromQuery] string? city,
         [FromQuery] string? category,
@@ -77,16 +80,19 @@ public class OffersController: ControllerBase
                 o.Cities.Any(c => c.Name == city));
         }
 
-        var offers = await offersQuery.ToListAsync(cancellationToken);
+        var offers = await offersQuery
+            .Include(o => o.Cities)
+            .Include(o => o.Category)
+            .ToListAsync(cancellationToken);
 
         return Ok(offers);
     }
 
     [Authorize(Policy = "AdminPolicy")]
-    [HttpGet("/archived")]
+    [HttpGet("archived")]
     public async Task<IActionResult> GetArchivedOffers(
         [FromQuery] string? city,
-        [FromQuery] string category,
+        [FromQuery] string? category,
         CancellationToken cancellationToken)
     {
         var offersQuery = _dbContext.Offers.AsQueryable();
@@ -109,7 +115,10 @@ public class OffersController: ControllerBase
                 o.Cities.Any(c => c.Name == city));
         }
 
-        var offers = await offersQuery.ToListAsync(cancellationToken);
+        var offers = await offersQuery
+            .Include(o => o.Cities)
+            .Include(o => o.Category)
+            .ToListAsync(cancellationToken);
 
         return Ok(offers);
     }
@@ -119,7 +128,10 @@ public class OffersController: ControllerBase
     public async Task<IActionResult> GetOfferById(int id, CancellationToken cancellationToken)
     {
         // Поиск предложения по id
-        var offer = await _dbContext.Offers.FindAsync([id], cancellationToken);
+        var offer = await _dbContext.Offers
+            .Include(o => o.Category)
+            .Include(o => o.Cities)
+            .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
 
         // Проверка, существует ли предложение
         if (offer == null)
@@ -154,17 +166,6 @@ public class OffersController: ControllerBase
         // Проверяем, если статус - Active
         if (request.Status == Status.Active)
         {
-            // Проверяем тип предложения
-            if (offerTypeNotPresent)
-            {
-                return BadRequest(new { message = "Все поля обязательны для заполнения" });
-            }
-
-            if (!offerTypeIsValid)
-            {
-                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
-            }
-            
             if (string.IsNullOrWhiteSpace(request.Name) ||
                 string.IsNullOrWhiteSpace(request.Annotation) ||
                 string.IsNullOrWhiteSpace(request.CompanyUrl) ||
@@ -174,30 +175,29 @@ public class OffersController: ControllerBase
                 request.StartDate == null ||
                 request.EndDate == null ||
                 request.Cities.Count == 0 ||
-                (request.DiscountSize == null && offerType == OfferType.Discount) ||
-                (request.DiscountSize != null && offerType == OfferType.Benefit) ||
-                request.DiscountSize < 0 || request.DiscountSize > 100)
+                offerTypeNotPresent)
             {
-                return BadRequest(new { message = "Все поля обязательны для заполнения, и DiscountSize должен быть от 0 до 100 для предложения типа Discount" });
+                return BadRequest(new { message = "Все поля обязательны для заполнения" });
             }
         }
 
         // Проверяем OfferType и DiscountSize
-        if (!offerTypeIsValid)
+        if (!offerTypeNotPresent)
         {
-            return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+            if (!offerTypeIsValid)
+            {
+                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+            }
+        
+            switch (offerType)
+            {
+                case OfferType.Discount when request.DiscountSize is < 0 or > 100:
+                    return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
+                case OfferType.Benefit when request.DiscountSize != null:
+                    return BadRequest(new { message = "Для предложения типа Benefit нельзя указать размер скидки DiscountSize" });
+            }
         }
         
-        if (offerType == OfferType.Discount && request.DiscountSize is < 0 or > 100)
-        {
-            return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
-        }
-
-        if (offerType == OfferType.Benefit && request.DiscountSize != null)
-        {
-            return BadRequest(new { message = "Для предложения типа Benefit нельзя указать размер скидки DiscountSize" });
-        }
-
         // Проверяем, существует ли категория в базе
         if (request.Category != null)
         {
@@ -216,20 +216,8 @@ public class OffersController: ControllerBase
             categoryId = category.Id;
         }
 
-        // // Проверяем, существуют ли города в базе
-        // if (request.Cities != null)
-        // {
-        //     var cityExists = await _dbContext.Cities
-        //         .Where(city => request.Cities.Contains(city.Name))
-        //         .AnyAsync(cancellationToken);
-        //     if (!cityExists)
-        //     {
-        //         return BadRequest(new { message = "Один или несколько городов не существуют" });
-        //     }
-        // }
-
         var cities = new List<City?>();
-        if (request.Cities != null)
+        if (request.Cities.Count > 0)
         {
             foreach (var cityName in request.Cities)
             {
@@ -262,15 +250,16 @@ public class OffersController: ControllerBase
             discountSize: request.DiscountSize
         );
 
-        newOffer.Cities = cities;
-
         _dbContext.Offers.Add(newOffer);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        // Добавляем города в предложение
+        await newOffer.SetCities(cities, _dbContext, cancellationToken);
+
         return CreatedAtAction(nameof(CreateOffer), new { id = newOffer.Id }, newOffer);
     }
-    
+
     [Authorize(Policy = "AdminPolicy")]
     [HttpPut("archive/{id:int}")]
     public async Task<IActionResult> ArchiveOffer(int id, CancellationToken cancellationToken)
@@ -318,17 +307,6 @@ public class OffersController: ControllerBase
         // Проверяем, если статус - Active
         if (request.Status == Status.Active)
         {
-            // Проверяем тип предлоения
-            if (offerTypeNotPresent)
-            {
-                return BadRequest(new { message = "Все поля обязательны для заполнения" });
-            }
-
-            if (!offerTypeIsValid)
-            {
-                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
-            }
-            
             if (string.IsNullOrWhiteSpace(request.Name) ||
                 string.IsNullOrWhiteSpace(request.Annotation) ||
                 string.IsNullOrWhiteSpace(request.CompanyUrl) ||
@@ -338,22 +316,27 @@ public class OffersController: ControllerBase
                 request.StartDate == null ||
                 request.EndDate == null ||
                 request.Cities.Count == 0 ||
-                (request.DiscountSize == null && offerType == OfferType.Discount) ||
-                (request.DiscountSize < 0 || request.DiscountSize > 100))
+                offerTypeNotPresent)
             {
-                return BadRequest(new { message = "Все поля обязательны для заполнения, и DiscountSize должен быть от 0 до 100 для данного типа предложения" });
+                return BadRequest(new { message = "Все поля обязательны для заполнения" });
             }
         }
 
         // Проверяем OfferType и DiscountSize
-        if (!offerTypeIsValid)
+        if (!offerTypeNotPresent)
         {
-            return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
-        }
+            if (!offerTypeIsValid)
+            {
+                return BadRequest(new { message = $"Типа предложения со значением = {request.OfferType} не существует" });
+            }
         
-        if (offerType == OfferType.Discount && request.DiscountSize is < 0 or > 100)
-        {
-            return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
+            switch (offerType)
+            {
+                case OfferType.Discount when request.DiscountSize is < 0 or > 100:
+                    return BadRequest(new { message = "DiscountSize должен быть от 0 до 100" });
+                case OfferType.Benefit when request.DiscountSize != null:
+                    return BadRequest(new { message = "Для предложения типа Benefit нельзя указать размер скидки DiscountSize" });
+            }
         }
 
         // Проверяем, существует ли категория в базе
@@ -366,18 +349,6 @@ public class OffersController: ControllerBase
                 return BadRequest(new { message = $"Категория {request.Category} не существует" });
             }
         }
-        
-        // Проверяем, существуют ли города в базе
-        if (request.Cities.Count > 0)
-        {
-            var cityExists = await _dbContext.Cities
-                .Where(city => request.Cities.Contains(city.Name))
-                .AnyAsync(cancellationToken);
-            if (!cityExists)
-            {
-                return BadRequest(new { message = "Один или несколько городов не существуют" });
-            }
-        }
 
         var category = request.Category != null ? await Category.GetByName(_dbContext, request.Category, cancellationToken) : null;
 
@@ -385,10 +356,11 @@ public class OffersController: ControllerBase
         foreach (var cityName in request.Cities)
         {
             var city = await City.GetByName(_dbContext, cityName, cancellationToken);
-            if (city != null)
+            if (city == null)
             {
-                cities.Add(city);
+                return BadRequest(new { message = $"Город {cityName} не существует" });
             }
+            cities.Add(city);
         }
 
         var offerData = new EditOfferData(

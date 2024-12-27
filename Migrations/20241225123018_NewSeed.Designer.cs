@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using CorporateOffers.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CorporateOffers.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241225123018_NewSeed")]
+    partial class NewSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -256,12 +259,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url",
                             Description = "description",
-                            EndDate = new DateTime(2024, 12, 28, 8, 58, 27, 546, DateTimeKind.Utc).AddTicks(5071),
+                            EndDate = new DateTime(2024, 12, 26, 12, 30, 17, 562, DateTimeKind.Utc).AddTicks(6948),
                             ImagePath = "",
                             Links = new List<string> { "link1", "link2" },
                             Name = "name",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 27, 8, 58, 27, 546, DateTimeKind.Utc).AddTicks(3764),
+                            StartDate = new DateTime(2024, 12, 25, 12, 30, 17, 562, DateTimeKind.Utc).AddTicks(6598),
                             Status = 0
                         },
                         new
@@ -272,12 +275,12 @@ namespace CorporateOffers.Migrations
                             CompanyUrl = "url2",
                             Description = "description2",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 29, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1107),
+                            EndDate = new DateTime(2024, 12, 27, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1479),
                             ImagePath = "",
                             Links = new List<string>(),
                             Name = "name2",
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 27, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1104),
+                            StartDate = new DateTime(2024, 12, 25, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1478),
                             Status = 1
                         },
                         new
@@ -287,11 +290,11 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             Description = "description3",
                             DiscountSize = 10,
-                            EndDate = new DateTime(2024, 12, 30, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1162),
+                            EndDate = new DateTime(2024, 12, 28, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1494),
                             ImagePath = "",
                             Links = new List<string> { "link3" },
                             OfferType = 1,
-                            StartDate = new DateTime(2024, 12, 27, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1161),
+                            StartDate = new DateTime(2024, 12, 25, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1494),
                             Status = 1
                         },
                         new
@@ -301,12 +304,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 1,
                             CompanyUrl = "url4",
                             Description = "description4",
-                            EndDate = new DateTime(2024, 12, 31, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1193),
+                            EndDate = new DateTime(2024, 12, 29, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1504),
                             ImagePath = "",
                             Links = new List<string> { "link" },
                             Name = "name4",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 28, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1190),
+                            StartDate = new DateTime(2024, 12, 26, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1503),
                             Status = 2
                         },
                         new
@@ -316,12 +319,12 @@ namespace CorporateOffers.Migrations
                             CategoryId = 2,
                             CompanyUrl = "url5",
                             Description = "description5",
-                            EndDate = new DateTime(2025, 1, 1, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1204),
+                            EndDate = new DateTime(2024, 12, 30, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1508),
                             ImagePath = "",
                             Links = new List<string> { "link" },
                             Name = "name5",
                             OfferType = 0,
-                            StartDate = new DateTime(2024, 12, 29, 8, 58, 27, 548, DateTimeKind.Utc).AddTicks(1202),
+                            StartDate = new DateTime(2024, 12, 27, 12, 30, 17, 563, DateTimeKind.Utc).AddTicks(1507),
                             Status = 0
                         });
                 });
@@ -364,9 +367,6 @@ namespace CorporateOffers.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
-
-                    b.Property<DateTime?>("LastLogin")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")
                         .IsRequired()

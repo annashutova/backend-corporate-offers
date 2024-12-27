@@ -58,6 +58,9 @@ public class OfferConfiguration : IEntityTypeConfiguration<Offer>
                     new { OffersId = 3, CitiesId = 4 },
                     new { OffersId = 4, CitiesId = 1 },
                     new { OffersId = 4, CitiesId = 3 },
+                    new { OffersId = 5, CitiesId = 2 },
+                    new { OffersId = 5, CitiesId = 3 },
+                    new { OffersId = 5, CitiesId = 4 },
                 });
             });
     }

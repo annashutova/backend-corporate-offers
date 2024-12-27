@@ -36,7 +36,11 @@ public class UsersController: ControllerBase
         }
 
         var token = _jwtService.GenerateToken(user);
-        return Ok(new LoginResult(token));
+
+        DateTime currentTime = DateTime.UtcNow.AddHours(3);
+        await user.SetLastLogin(currentTime, _dbContext, cancellationToken);
+
+        return Ok(new LoginResult(token, user));
     }
     
     [Authorize]
@@ -49,14 +53,4 @@ public class UsersController: ControllerBase
         
         return Ok();
     }
-    
-    [Authorize(Policy = "AdminPolicy")]
-    [HttpGet("get_all")]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
-    {
-        var users = await _dbContext.Users.ToListAsync(cancellationToken);
-
-        return Ok(users);
-    }
-    
 }
