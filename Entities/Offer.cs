@@ -19,7 +19,7 @@ public class Offer
     public Category? Category { get; private set; }
     public List<string?> Links { get; private set; } = [];
     public string? ImagePath { get; private set; }
-    public List<City?> Cities { get; set; } = [];
+    public List<City?> Cities { get; private set; } = [];
 
     public Offer(int id, string? name, string? annotation, string? companyUrl,
         string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
@@ -42,7 +42,7 @@ public class Offer
     // перегрузка конструктора
     public Offer(string? name, string? annotation, string? companyUrl,
         string? description, DateTime? startDate, DateTime? endDate, OfferType? offerType,
-        Status status, List<string>? links, string? imagePath, int? categoryId, int? discountSize = null) {
+        Status status, List<string?> links, string? imagePath, int? categoryId, int? discountSize = null) {
         Name = name;
         Annotation = annotation;
         CompanyUrl = companyUrl;
@@ -81,6 +81,12 @@ public class Offer
         Cities.Clear();
         Cities.AddRange(offerData.Cities ?? []);
 
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task SetCities(List<City?> cities, AppDbContext dbContext, CancellationToken cancellationToken)
+    {
+        Cities.AddRange(cities ?? []);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }
