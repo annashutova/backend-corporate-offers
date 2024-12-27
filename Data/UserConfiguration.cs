@@ -20,7 +20,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasData(new User[] {
             new (1, "email@gmail.com", "Ivan", "Ivanov", Role.Admin, Hash.HashPassword("123")),
-            new (2, "email", "Marina", "Ivanova", Role.Employee, Hash.HashPassword("123")),
+            new (2, "email@mail.ru", "Marina", "Ivanova", Role.Employee, Hash.HashPassword("123")),
         });
     }
 }
