@@ -27,7 +27,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       DBHOST: database
     ports:
-      - "5000:8080"
+      - "5269:8080"
     depends_on:
       database:
         condition: service_healthy
